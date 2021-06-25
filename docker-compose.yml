@@ -1,0 +1,56 @@
+version: '3'
+
+services:
+    reverse-proxy:
+        image: nginx
+        container_name: nginx
+        ports:
+            - 80:80
+            - 443:443
+        volumes:
+            - ./reverse-proxy/conf.d:/etc/nginx/conf.d
+            - ./reverse-proxy/ssl:/etc/nginx/ssl
+        depends_on:
+            - confluence
+        networks:
+            - confluence_frontend
+
+    confluence:
+        build:
+            context: ./confluence
+            args:
+                CONFLUENCE_VERSION: 7.12.2
+        container_name: confluence
+        expose:
+            - 8090
+            - 8091
+        tty: true
+        depends_on:
+            - postgres
+        volumes:
+            - confluence_app_volume:/var/atlassian/application-data/confluence
+        networks:
+            - confluence_frontend
+            - confluence_backend
+
+    postgres:
+        image: postgres:12-alpine
+        container_name: psql
+        environment:
+            - POSTGRES_USER
+            - POSTGRES_PASSWORD
+            - POSTGRES_DB
+        expose:
+            - 5432
+        volumes:
+            - confluence_db_volume:/var/lib/postgresql/data
+        networks:
+            - confluence_backend
+
+volumes:
+    confluence_app_volume:
+    confluence_db_volume:
+
+networks:
+    confluence_frontend:
+    confluence_backend:
