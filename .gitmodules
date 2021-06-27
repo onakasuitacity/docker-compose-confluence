@@ -1,3 +1,0 @@
-[submodule "confluence"]
-	path = confluence
-	url = https://github.com/onakasuitacity/docker-confluence.git
