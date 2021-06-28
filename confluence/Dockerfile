@@ -2,10 +2,8 @@ ARG CONFLUENCE_VERSION
 FROM atlassian/confluence-server:${CONFLUENCE_VERSION:-latest}
 
 ARG PROXY_NAME
-RUN sed -i -e "s/\(secure=.*\)false/\1true/" /opt/atlassian/etc/server.xml.j2 \
-    && sed -i -e "s/\(scheme=.*\)http/\1https/" /opt/atlassian/etc/server.xml.j2 \
-    && sed -i -e "s/\(proxyName=.*default\)('')/\1('${PROXY_NAME:-localhost}')/" /opt/atlassian/etc/server.xml.j2 \
-    && sed -i -e "s/\(proxyPort=.*default\)('')/\1('443')/" /opt/atlassian/etc/server.xml.j2 \
+RUN sed -i -e "s/\(proxyName=.*default\)('')/\1('${PROXY_NAME:-localhost}')/" /opt/atlassian/etc/server.xml.j2 \
+    && sed -i -e "s/\(proxyPort=.*default\)('')/\1('80')/" /opt/atlassian/etc/server.xml.j2 \
     \
     && apt-get update -qq \
     && apt-get install -qq -y --no-install-recommends fonts-ipafont-gothic \

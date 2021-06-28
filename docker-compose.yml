@@ -2,18 +2,23 @@ version: '3'
 
 services:
     web:
-        image: nginx
+        image: nginx:alpine
         container_name: nginx
-        ports:
-            - 80:80
-            - 443:443
         volumes:
             - ./web/conf.d:/etc/nginx/conf.d
-            - ./web/ssl:/etc/nginx/ssl
+            - reverse-proxy_nginx-static:/usr/share/nginx/html
+        environment:
+            VIRTUAL_HOST: localhost
+            LETSENCRYPT_HOST: localhost
+            LETSENCRYPT_EMAIL: xxx@gmail.com
+            LETSENCRYPT_TEST: "true"  # comment out in production
+            HTTPS_METHOD: noredirect  # comment out in production
+            CERT_NAME: default        # comment out in production
         depends_on:
             - confluence
         networks:
-            - confluence_frontend
+            - frontend
+            - reverse-proxy_proxy
 
     confluence:
         build:
@@ -26,10 +31,10 @@ services:
         depends_on:
             - postgres
         volumes:
-            - confluence_app_volume:/var/atlassian/application-data/confluence
+            - app_volume:/var/atlassian/application-data/confluence
         networks:
-            - confluence_frontend
-            - confluence_backend
+            - frontend
+            - backend
 
     postgres:
         image: postgres:12-alpine
@@ -39,14 +44,18 @@ services:
             - POSTGRES_PASSWORD
             - POSTGRES_DB
         volumes:
-            - confluence_db_volume:/var/lib/postgresql/data
+            - db_volume:/var/lib/postgresql/data
         networks:
-            - confluence_backend
+            - backend
 
 volumes:
-    confluence_app_volume:
-    confluence_db_volume:
+    app_volume:
+    db_volume:
+    reverse-proxy_nginx-static:
+        external: true
 
 networks:
-    confluence_frontend:
-    confluence_backend:
+    frontend:
+    backend:
+    reverse-proxy_proxy:
+        external: true
