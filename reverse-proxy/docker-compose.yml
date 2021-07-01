@@ -30,8 +30,10 @@ services:
 
 networks:
     proxy:
+        name: proxy
 
 volumes:
     certs:
     nginx-static:
+        name: nginx-static
     vhost:

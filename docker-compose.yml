@@ -6,10 +6,10 @@ services:
         container_name: nginx
         volumes:
             - ./web/conf.d:/etc/nginx/conf.d
-            - reverse-proxy_nginx-static:/usr/share/nginx/html
+            - nginx-static:/usr/share/nginx/html
         environment:
-            VIRTUAL_HOST: localhost
-            LETSENCRYPT_HOST: localhost
+            VIRTUAL_HOST: onakasuitacity.tk
+            LETSENCRYPT_HOST: onakasuitacity.tk
             LETSENCRYPT_EMAIL: xxx@gmail.com
             LETSENCRYPT_TEST: "true"  # comment out in production
             HTTPS_METHOD: noredirect  # comment out in production
@@ -18,14 +18,14 @@ services:
             - confluence
         networks:
             - frontend
-            - reverse-proxy_proxy
+            - proxy
 
     confluence:
         build:
             context: ./confluence
             args:
                 CONFLUENCE_VERSION: 7.3.4
-                PROXY_NAME: localhost
+                PROXY_NAME: onakasuitacity.tk
         image: confluence
         container_name: confluence
         depends_on:
@@ -51,11 +51,14 @@ services:
 volumes:
     app_volume:
     db_volume:
-    reverse-proxy_nginx-static:
+    nginx-static:
         external: true
 
 networks:
+    default:
+        external:
+            name: bridge
     frontend:
     backend:
-    reverse-proxy_proxy:
+    proxy:
         external: true
